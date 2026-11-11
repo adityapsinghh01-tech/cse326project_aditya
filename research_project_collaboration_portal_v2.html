@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Project Collaboration Portal</title>
+<style>
+:root{
+ --site-primary:#315e52; --site-secondary:#e6eee9; --site-background:#f7f8f6;
+ --site-on-primary:#ffffff; --site-on-secondary:#24483e; --site-on-background:#1e2925;
+ --site-font-body:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ --site-font-heading:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ --site-heading-scale:1; --site-spacing-scale:1; --site-radius-scale:1; --site-decoration-opacity:1;
+ --ink:#202c27; --muted:#75817b; --line:#e5e9e5; --surface:#fff; --soft:#f0f4f1;
+ --green:#315e52; --green-soft:#e6eee9; --amber:#a86b23; --amber-soft:#fbf0dc;
+ --blue:#496d9b; --blue-soft:#eaf0f8; --rose:#a95d58; --rose-soft:#f8e9e7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:light-dark(#f7f8f6,#151a18);color:light-dark(var(--ink),#edf2ee);font-family:var(--site-font-body)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;background:light-dark(var(--site-background),#151a18);color:light-dark(var(--ink),#edf2ee)}
+.sidebar{width:254px;position:fixed;inset:0 auto 0 0;padding:26px 16px;background:light-dark(#fff,#1c2420);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:5}
+.brand{display:flex;align-items:center;gap:11px;padding:0 10px 30px;font-size:14px;font-weight:750;letter-spacing:-.3px;line-height:1.25}
+.logo{width:34px;height:34px;background:var(--green);color:#fff;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:17px;flex-shrink:0}
+.nav-label{padding:0 12px;margin:5px 0 9px;color:var(--muted);font-size:10px;font-weight:750;letter-spacing:1.2px;text-transform:uppercase}
+.nav{display:flex;align-items:center;gap:12px;border:0;background:transparent;color:var(--muted);padding:11px 12px;border-radius:9px;text-align:left;width:100%;font-size:13px;margin:2px 0}
+.nav .ico{width:18px;text-align:center;font-size:16px}
+.nav.active,.nav:hover{background:var(--green-soft);color:var(--green);font-weight:650}
+.sidebar-bottom{margin-top:auto}
+.help-card{background:light-dark(#f5f7f5,#252e29);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 3px 16px}
+.help-card strong{font-size:12px}.help-card p{font-size:11px;line-height:1.5;color:var(--muted);margin:7px 0 12px}
+.small-btn{border:1px solid var(--line);background:var(--surface);padding:8px 10px;border-radius:7px;font-size:11px;color:var(--ink)}
+.profile{display:flex;gap:10px;align-items:center;padding:15px 8px 0;border-top:1px solid var(--line)}
+.avatar{height:32px;width:32px;border-radius:50%;display:grid;place-items:center;background:#dfe9df;color:#315e52;font-size:11px;font-weight:750;flex-shrink:0}
+.profile b{font-size:12px;display:block}.profile small{font-size:10px;color:var(--muted)}
+.main{margin-left:254px;min-height:100vh}
+.topbar{height:76px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 36px;background:light-dark(#fff,#1c2420)}
+.breadcrumb{font-size:12px;color:var(--muted)}.breadcrumb b{color:var(--ink);font-weight:650}
+.top-actions{display:flex;align-items:center;gap:14px}
+.search{width:200px;border:1px solid var(--line);border-radius:8px;background:light-dark(#fafbfa,#202823);padding:9px 11px;font-size:12px;outline:none;color:inherit}
+.icon-btn{height:34px;width:34px;border:1px solid var(--line);background:var(--surface);border-radius:9px;color:var(--muted);position:relative}
+.dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#c66d58;right:7px;top:6px}
+.content{max-width:1500px;margin:0 auto;padding:32px 36px 50px}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:25px}
+.eyebrow{font-size:11px;color:var(--green);font-weight:750;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px}
+h1{font-size:clamp(25px,3vw,32px);letter-spacing:-1.1px;margin:0;font-weight:730}
+.subtitle{color:var(--muted);font-size:13px;margin-top:8px}
+.primary-btn{border:1px solid var(--green);background:var(--green);color:#fff;border-radius:8px;padding:11px 15px;font-size:12px;font-weight:650;display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.primary-btn:hover{filter:brightness(1.07)}
+.secondary-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:10px 13px;font-size:12px;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin-bottom:23px}
+.stat,.panel,.project-card{background:light-dark(var(--surface),#1c2420);border:1px solid var(--line);border-radius:13px}
+.stat{padding:18px 19px}.stat-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}
+.stat-icon{height:31px;width:31px;display:grid;place-items:center;border-radius:9px;background:var(--green-soft);color:var(--green);font-size:15px}
+.stat-num{font-size:27px;letter-spacing:-1px;font-weight:730;margin:12px 0 5px}
+.stat-foot{font-size:10px;color:var(--muted)}.positive{color:var(--green);font-weight:650}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.section-head h2{font-size:15px;letter-spacing:-.3px;margin:0}.text-link{border:0;background:transparent;color:var(--green);font-size:11px;font-weight:700}
+.dashboard-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,1fr);gap:19px;margin-bottom:23px}
+.panel{padding:21px;min-width:0}
+.project-list{display:grid;gap:12px}
+.project-card{padding:16px;display:flex;gap:14px;align-items:flex-start}
+.project-symbol{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;flex-shrink:0;font-size:18px;background:var(--green-soft);color:var(--green)}
+.project-symbol.blue{background:var(--blue-soft);color:var(--blue)}.project-symbol.amber{background:var(--amber-soft);color:var(--amber)}
+.project-main{flex:1;min-width:0}.project-title{font-size:13px;font-weight:700;margin:1px 0 6px}.project-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pill{font-size:10px;border-radius:5px;padding:5px 7px;background:var(--soft);color:#59665f;font-weight:650}
+.pill.green{background:var(--green-soft);color:var(--green)}.pill.amber{background:var(--amber-soft);color:var(--amber)}.pill.blue{background:var(--blue-soft);color:var(--blue)}.pill.rose{background:var(--rose-soft);color:var(--rose)}
+.project-progress{margin-top:13px;display:flex;align-items:center;gap:10px}.progress-track{height:5px;border-radius:99px;background:var(--soft);flex:1;overflow:hidden}.progress-fill{height:100%;border-radius:99px;background:var(--green)}.progress-label{font-size:10px;color:var(--muted);min-width:28px;text-align:right}
+.members{display:flex;align-items:center;padding-left:5px;margin-top:13px}.members .avatar{margin-left:-5px;border:2px solid var(--surface);height:27px;width:27px;font-size:9px}
+.more-members{font-size:10px;color:var(--muted);margin-left:7px}
+.deadline-list{display:grid;gap:0}.deadline{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.deadline:last-child{border-bottom:0}
+.datebox{height:43px;width:43px;border:1px solid var(--line);border-radius:9px;text-align:center;display:flex;flex-direction:column;justify-content:center;flex-shrink:0}
+.datebox small{font-size:9px;text-transform:uppercase;color:var(--muted);font-weight:700}.datebox b{font-size:15px;line-height:1.3}
+.deadline-info{flex:1;min-width:0}.deadline-info strong{font-size:12px;display:block;margin:2px 0 5px}.deadline-info small{font-size:10px;color:var(--muted)}
+.activity-list{display:grid;gap:17px}.activity{display:flex;gap:10px;align-items:flex-start}.activity .avatar{height:28px;width:28px;font-size:9px}.activity-text{font-size:11px;line-height:1.55}.activity-text b{font-weight:700}.activity-text small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.task-preview{display:grid;gap:0}.task-row{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}.task-row:last-child{border:0}
+.check{width:17px;height:17px;border:1.5px solid #c6d0c9;border-radius:5px;display:grid;place-items:center;color:#fff;font-size:11px;flex-shrink:0;background:transparent}
+.check.done{background:var(--green);border-color:var(--green)}.task-copy{flex:1;min-width:0}.task-copy strong{display:block;font-size:11px;font-weight:650}.task-copy small{font-size:10px;color:var(--muted)}.task-row .pill{white-space:nowrap}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 20px;overflow:auto}
+.tab{border:0;background:transparent;padding:11px 14px;font-size:12px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:var(--green);font-weight:750;border-color:var(--green)}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+.board-col{background:light-dark(#f0f3f0,#202823);border:1px solid var(--line);border-radius:12px;padding:12px;min-height:230px}
+.col-head{display:flex;justify-content:space-between;align-items:center;padding:3px 3px 12px;font-size:12px;font-weight:750}.count{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:2px 6px;font-size:10px;color:var(--muted)}
+.task-card{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:13px;margin-bottom:9px;cursor:pointer}.task-card:hover{border-color:#a9bdb0}
+.task-card h3{font-size:12px;line-height:1.4;margin:10px 0 7px}.task-card p{font-size:10px;color:var(--muted);line-height:1.5;margin:0 0 10px}
+.task-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px}.task-card-foot small{font-size:10px;color:var(--muted)}
+.avatar.mini{height:23px;width:23px;font-size:8px}
+.page-view{display:none}.page-view.active{display:block}
+.table-wrap{overflow-x:auto}.simple-table{width:100%;border-collapse:collapse;font-size:12px}.simple-table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:12px;border-bottom:1px solid var(--line)}.simple-table td{padding:14px 12px;border-bottom:1px solid var(--line)}.simple-table tr:last-child td{border-bottom:0}
+.person-cell{display:flex;gap:9px;align-items:center}.person-cell b{display:block;font-size:11px}.person-cell small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.milestone{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}.milestone:last-child{border:0}.milestone-dot{height:28px;width:28px;border-radius:50%;background:var(--green-soft);color:var(--green);display:grid;place-items:center;flex-shrink:0;font-size:12px}.milestone-dot.pending{background:var(--amber-soft);color:var(--amber)}.milestone-info{flex:1}.milestone-info b{font-size:12px}.milestone-info p{font-size:11px;color:var(--muted);margin:5px 0 0;line-height:1.5}
+.ref-item{display:flex;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}.ref-item:last-child{border:0}.file-icon{width:38px;height:38px;border-radius:9px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center;font-size:13px;font-weight:750}.ref-copy{flex:1;min-width:0}.ref-copy b{font-size:12px;display:block}.ref-copy small{color:var(--muted);font-size:10px;display:block;margin-top:4px;overflow-wrap:anywhere}.ref-copy a{color:var(--green);font-size:10px;text-decoration:none}
+.comment{display:flex;gap:11px;margin:18px 0}.comment-body{flex:1;background:light-dark(#f7f9f7,#202823);border-radius:10px;padding:12px}.comment-body b{font-size:11px}.comment-body small{font-size:10px;color:var(--muted);margin-left:7px}.comment-body p{font-size:12px;line-height:1.55;margin:7px 0 0}
+.comment-form{display:flex;gap:8px;margin-top:20px}.comment-form input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;padding:11px;font-size:12px;background:var(--surface);color:inherit}
+.activity-full{display:flex;gap:13px;padding:15px 0;border-bottom:1px solid var(--line)}.activity-full:last-child{border:0}.activity-full p{font-size:12px;line-height:1.5;margin:2px 0 5px}.activity-full small{font-size:10px;color:var(--muted)}
+.empty{color:var(--muted);font-size:12px;padding:28px;text-align:center}
+.modal-backdrop{position:fixed;inset:0;background:#16231e66;display:none;align-items:center;justify-content:center;padding:20px;z-index:20}.modal-backdrop.show{display:flex}
+.modal{width:min(490px,100%);max-height:90vh;overflow:auto;background:light-dark(#fff,#1c2420);border:1px solid var(--line);border-radius:15px;padding:24px;box-shadow:0 20px 70px #0002}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:19px}.modal-head h2{font-size:18px;margin:0}.close{border:0;background:transparent;color:var(--muted);font-size:23px}
+.field{display:grid;gap:7px;margin-bottom:15px}.field label{font-size:11px;font-weight:700;color:var(--muted)}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:8px;padding:11px;font-size:12px;background:var(--surface);color:inherit;outline:none}.field textarea{min-height:78px;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--green)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.toast{position:fixed;bottom:22px;right:22px;background:#24483e;color:white;border-radius:10px;padding:12px 16px;font-size:12px;box-shadow:0 8px 30px #0002;display:none;z-index:40}.toast.show{display:block}
+.mobile-menu{display:none}
+@media(max-width:1100px){.sidebar{width:210px}.main{margin-left:210px}.content{padding:26px 23px}.topbar{padding:0 23px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:1fr}.board{grid-template-columns:1fr}}
+@media(max-width:720px){.sidebar{transform:translateX(-100%);width:250px;transition:transform .2s}.sidebar.open{transform:translateX(0);box-shadow:10px 0 40px #0002}.main{margin-left:0}.topbar{height:64px;padding:0 16px}.mobile-menu{display:inline-grid}.search{display:none}.content{padding:23px 15px 40px}.page-head{align-items:flex-start}.page-head .primary-btn{padding:10px 11px}.page-head .primary-btn span{display:none}.stats{gap:10px}.stat{padding:14px}.stat-num{font-size:24px}.panel{padding:16px}.project-card{padding:13px}.board{grid-template-columns:1fr}.top-actions{gap:8px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><div class="logo">R</div><span>Research Project Collaboration Portal</span></div>
+ <div class="nav-label">Workspace</div>
+ <button class="nav active" data-page="overview"><span class="ico">▦</span> Overview</button>
+ <button class="nav" data-page="projects"><span class="ico">◫</span> My projects</button>
+ <button class="nav" data-page="tasks"><span class="ico">☷</span> Task board</button>
+ <button class="nav" data-page="milestones"><span class="ico">◷</span> Milestones</button>
+ <div class="nav-label" style="margin-top:25px">Research tools</div>
+ <button class="nav" data-page="references"><span class="ico">↗</span> References & files</button>
+ <button class="nav" data-page="team"><span class="ico">♧</span> Team members</button>
+ <button class="nav" data-page="activity"><span class="ico">↻</span> Activity history</button>
+ <div class="sidebar-bottom">
+  <div class="help-card"><strong>Keep research moving</strong><p>Small, consistent updates help your whole team stay aligned.</p><div style="display:flex;gap:6px"><button class="small-btn" id="quickTask">＋ Add a task</button><button class="small-btn" id="resetDataBtn" title="Reset demo data">↺ Reset</button></div></div>
+  <div class="profile"><div class="avatar">AP</div><div><b>Aditya Pratap Singh</b><small>Project lead</small></div><span style="margin-left:auto;color:var(--muted)">⌄</span></div>
+ </div>
+</aside>
+<main class="main">
+ <header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px"><button class="icon-btn mobile-menu" id="mobileMenu" aria-label="Open menu">☰</button><div class="breadcrumb">Workspace <span style="margin:0 8px">/</span> <b id="crumb">Overview</b></div></div>
+  <div class="top-actions"><input class="search" id="globalSearch" placeholder="⌕  Search projects, tasks…"><button class="icon-btn" id="notifyBtn" aria-label="Notifications">♧<span class="dot"></span></button><div class="avatar">AP</div></div>
+ </header>
+ <div class="content">
+  <section class="page-view active" id="page-overview">
+   <div class="page-head"><div><div class="eyebrow">ACADEMIC RESEARCH PORTAL</div><h1>Good morning, Aditya <span style="font-size:25px">☀</span></h1><div class="subtitle">Here’s what’s happening across your research collaboration workspace.</div></div><button class="primary-btn" id="newProjectBtn">＋ <span>New project</span></button></div>
+   <div class="stats">
+    <div class="stat"><div class="stat-top">Active projects <span class="stat-icon">◫</span></div><div class="stat-num" id="statProjects">3</div><div class="stat-foot"><span class="positive">+1</span> this semester</div></div>
+    <div class="stat"><div class="stat-top">Open tasks <span class="stat-icon">☷</span></div><div class="stat-num" id="statTasks">12</div><div class="stat-foot">Across all active projects</div></div>
+    <div class="stat"><div class="stat-top">Upcoming milestones <span class="stat-icon">◷</span></div><div class="stat-num" id="statMilestones">4</div><div class="stat-foot">Next 14 days</div></div>
+    <div class="stat"><div class="stat-top">Team members <span class="stat-icon">♧</span></div><div class="stat-num" id="statMembers">8</div><div class="stat-foot">Across your workspace</div></div>
+   </div>
+   <div class="dashboard-grid">
+    <div><div class="section-head"><h2>Active projects</h2><button class="text-link" data-goto="projects">View all →</button></div><div class="project-list" id="overviewProjects"></div></div>
+    <div class="panel"><div class="section-head"><h2>Upcoming milestones</h2><button class="text-link" data-goto="milestones">View all →</button></div><div class="deadline-list" id="overviewMilestones"></div></div>
+   </div>
+   <div class="dashboard-grid">
+    <div class="panel"><div class="section-head"><h2>My tasks</h2><button class="text-link" data-goto="tasks">Open task board →</button></div><div class="task-preview" id="overviewTasks"></div></div>
+    <div class="panel"><div class="section-head"><h2>Recent activity</h2><button class="text-link" data-goto="activity">View history →</button></div><div class="activity-list" id="overviewActivity"></div></div>
+   </div>
+  </section>
+  <section class="page-view" id="page-projects">
+   <div class="page-head"><div><div class="eyebrow">YOUR WORKSPACE</div><h1>My projects</h1><div class="subtitle">Organize research questions, teams, and outcomes in one place.</div></div><button class="primary-btn" id="newProjectBtn2">＋ <span>New project</span></button></div>
+   <div class="panel"><div class="section-head"><h2>All projects</h2><span class="pill" id="projectCount">3 projects</span></div><div class="project-list" id="allProjects"></div></div>
+  </section>
+  <section class="page-view" id="page-tasks">
+   <div class="page-head"><div><div class="eyebrow">PLAN & EXECUTE</div><h1>Task board</h1><div class="subtitle">Turn research goals into clear, trackable next steps.</div></div><button class="primary-btn" id="newTaskBtn">＋ <span>Add task</span></button></div>
+   <div class="tabs"><button class="tab active" data-filter="all">All tasks</button><button class="tab" data-filter="mine">Assigned to me</button><button class="tab" data-filter="overdue">Overdue</button></div>
+   <div class="board" id="taskBoard"></div>
+  </section>
+  <section class="page-view" id="page-milestones">
+   <div class="page-head"><div><div class="eyebrow">RESEARCH TIMELINE</div><h1>Milestones</h1><div class="subtitle">Keep important deliverables and review dates visible.</div></div><button class="primary-btn" id="newMilestoneBtn">＋ <span>Add milestone</span></button></div>
+   <div class="panel"><div class="section-head"><h2>Project timeline</h2><span class="pill">Fall semester</span></div><div id="milestoneList"></div></div>
+  </section>
+  <section class="page-view" id="page-references">
+   <div class="page-head"><div><div class="eyebrow">KNOWLEDGE LIBRARY</div><h1>References & files</h1><div class="subtitle">Keep papers, datasets, and useful links connected to your work.</div></div><button class="primary-btn" id="newRefBtn">＋ <span>Add reference</span></button></div>
+   <div class="panel"><div class="section-head"><h2>Shared library</h2><input id="refSearch" class="search" style="display:block;width:170px" placeholder="Search references…"></div><div id="referenceList"></div><div id="uploadNote" class="subtitle" style="margin-top:15px;font-size:11px">All references, tasks, and updates are automatically saved in localStorage and persist across browser reloads.</div></div>
+  </section>
+  <section class="page-view" id="page-team">
+   <div class="page-head"><div><div class="eyebrow">COLLABORATION</div><h1>Team members</h1><div class="subtitle">Know who’s involved and what each person is responsible for.</div></div><button class="primary-btn" id="newMemberBtn">＋ <span>Invite member</span></button></div>
+   <div class="panel"><div class="section-head"><h2>Workspace team</h2><span class="pill" id="memberCount">8 members</span></div><div class="table-wrap"><table class="simple-table"><thead><tr><th>Member</th><th>Role</th><th>Project</th><th>Tasks</th></tr></thead><tbody id="teamTable"></tbody></table></div></div>
+  </section>
+  <section class="page-view" id="page-activity">
+   <div class="page-head"><div><div class="eyebrow">WORKSPACE LOG</div><h1>Activity history</h1><div class="subtitle">A shared timeline of updates, decisions, and progress.</div></div><button class="secondary-btn" id="exportActivity">↓ Export history</button></div>
+   <div class="panel"><div class="section-head"><h2>Recent updates</h2><span class="pill">Latest first</span></div><div id="activityFull"></div></div>
+  </section>
+  <section class="page-view" id="page-comments">
+   <div class="page-head"><div><div class="eyebrow">TEAM DISCUSSION</div><h1>Comments</h1><div class="subtitle">Share updates and keep project conversations in context.</div></div><button class="secondary-btn" data-goto="projects">← Back to workspace</button></div>
+   <div class="panel"><div class="section-head"><h2>Research discussion</h2><span class="pill">Team thread</span></div><div id="commentList"></div><form class="comment-form" id="commentForm"><input id="commentInput" placeholder="Write a comment or update…" required><button class="primary-btn">Send</button></form></div>
+  </section>
+ </div>
+</main>
+</div>
+<div class="modal-backdrop" id="modalBackdrop"><div class="modal"><div class="modal-head"><h2 id="modalTitle">Create project</h2><button class="close" id="modalClose">×</button></div><form id="modalForm"><div id="modalFields"></div><div class="modal-actions"><button type="button" class="secondary-btn" id="modalCancel">Cancel</button><button type="submit" class="primary-btn" id="modalSubmit">Create</button></div></form></div></div>
+<div class="toast" id="toast"></div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const STORAGE_KEY="research_portal_state_v1";
+
+const defaultState={
+ projects:[
+ {id:1,name:"AI for Early Disease Detection",desc:"Exploring machine learning models for earlier, more accessible diagnosis.",category:"Computer Science",status:"In progress",progress:68,team:["AP","MK","RP","JD"],color:"",tasks:5},
+ {id:2,name:"Sustainable Campus Initiative",desc:"Measuring energy use and identifying practical campus sustainability improvements.",category:"Environmental Science",status:"In progress",progress:42,team:["AP","NT","SK"],color:"blue",tasks:4},
+ {id:3,name:"Student Learning Analytics",desc:"Understanding study patterns and their relationship to learning outcomes.",category:"Education Research",status:"Planning",progress:25,team:["AP","MK","AV"],color:"amber",tasks:3}
+ ],
+ tasks:[
+ {id:1,title:"Review recent related work",desc:"Collect and annotate 5 key papers.",status:"done",priority:"High",assignee:"MK",due:"Oct 24",project:1},
+ {id:2,title:"Finalize research question",desc:"Align scope with available data.",status:"progress",priority:"High",assignee:"AP",due:"Oct 27",project:1},
+ {id:3,title:"Prepare dataset inventory",desc:"Document available datasets and licenses.",status:"todo",priority:"Medium",assignee:"RP",due:"Oct 29",project:1},
+ {id:4,title:"Draft methodology section",desc:"Outline model selection and evaluation.",status:"todo",priority:"High",assignee:"JD",due:"Oct 31",project:1},
+ {id:5,title:"Collect campus energy readings",desc:"Confirm access to monthly utility data.",status:"progress",priority:"Medium",assignee:"NT",due:"Oct 28",project:2},
+ {id:6,title:"Create survey questions",desc:"Prepare a first draft for supervisor review.",status:"todo",priority:"Low",assignee:"SK",due:"Nov 02",project:2},
+ {id:7,title:"Review survey literature",desc:"Summarize relevant student learning studies.",status:"progress",priority:"Medium",assignee:"AV",due:"Oct 30",project:3},
+ {id:8,title:"Define evaluation metrics",desc:"Agree on the measures to report.",status:"todo",priority:"High",assignee:"AP",due:"Nov 04",project:3}
+ ],
+ milestones:[
+ {id:1,title:"Research question approved",project:1,date:"Oct 28",status:"In review",desc:"Confirm scope and expected contribution with supervisor."},
+ {id:2,title:"Literature review complete",project:1,date:"Nov 03",status:"Upcoming",desc:"Annotated bibliography and synthesis of related work."},
+ {id:3,title:"Dataset inventory submitted",project:2,date:"Nov 05",status:"Upcoming",desc:"List sources, access requirements, and data limitations."},
+ {id:4,title:"Survey draft review",project:3,date:"Nov 08",status:"Upcoming",desc:"Review instrument and prepare pilot test."}
+ ],
+ members:[
+ {id:1,name:"Aditya Pratap Singh",initials:"AP",email:"aditya.singh@university.edu",role:"Project lead",project:1,tasks:3},
+ {id:2,name:"Maya Kapoor",initials:"MK",email:"maya.k@university.edu",role:"Researcher",project:1,tasks:2},
+ {id:3,name:"Rohan Patel",initials:"RP",email:"rohan.p@university.edu",role:"Data analyst",project:1,tasks:2},
+ {id:4,name:"Jamie Das",initials:"JD",email:"jamie.d@university.edu",role:"Researcher",project:1,tasks:1},
+ {id:5,name:"Nina Thomas",initials:"NT",email:"nina.t@university.edu",role:"Project lead",project:2,tasks:2},
+ {id:6,name:"Sam Kaur",initials:"SK",email:"sam.kaur@university.edu",role:"Researcher",project:2,tasks:1},
+ {id:7,name:"Aarav Verma",initials:"AV",email:"aarav.v@university.edu",role:"Researcher",project:3,tasks:2},
+ {id:8,name:"Sara Khan",initials:"SK",email:"sara.k@university.edu",role:"Viewer",project:3,tasks:0}
+ ],
+ refs:[
+ {id:1,title:"Attention Is All You Need",type:"PDF",source:"Vaswani et al. · NeurIPS 2017",url:"https://arxiv.org/abs/1706.03762",project:1},
+ {id:2,title:"A Survey on Machine Learning for Healthcare",type:"LINK",source:"Research paper · Related work",url:"https://scholar.google.com/",project:1},
+ {id:3,title:"Campus Sustainability Assessment Framework",type:"LINK",source:"Methodology reference",url:"https://www.unep.org/",project:2},
+ {id:4,title:"Learning Analytics: Definitions and Research",type:"PDF",source:"Background reading · Education",url:"https://solaresearch.org/",project:3}
+ ],
+ comments:[
+ {id:1,author:"Maya Kapoor",initials:"MK",time:"Today, 9:12 AM",text:"I added three papers to the shared library. The review on model interpretability may help narrow our research question."},
+ {id:2,author:"Aditya Pratap Singh",initials:"AP",time:"Today, 9:26 AM",text:"Great find. Let's prioritize papers that compare clinical usefulness as well as model accuracy."},
+ {id:3,author:"Rohan Patel",initials:"RP",time:"Yesterday",text:"I can prepare a quick dataset inventory by Thursday. Please share any preferred sources."}
+ ],
+ activity:[
+ {initials:"MK",name:"Maya Kapoor",action:"added a reference",detail:"Attention Is All You Need",time:"Today, 9:12 AM",project:1},
+ {initials:"AP",name:"Aditya Pratap Singh",action:"updated task status",detail:"Finalize research question → In progress",time:"Today, 8:45 AM",project:1},
+ {initials:"RP",name:"Rohan Patel",action:"commented on",detail:"Dataset inventory",time:"Yesterday, 4:20 PM",project:1},
+ {initials:"NT",name:"Nina Thomas",action:"created a milestone",detail:"Dataset inventory submitted",time:"Yesterday, 2:05 PM",project:2},
+ {initials:"AV",name:"Aarav Verma",action:"updated a task",detail:"Review survey literature",time:"Oct 23, 11:30 AM",project:3}
+ ],
+ taskFilter:"all"
+};
+
+function loadState(){
+ try{
+  const saved=localStorage.getItem(STORAGE_KEY);
+  if(saved) return JSON.parse(saved);
+ }catch(e){}
+ return JSON.parse(JSON.stringify(defaultState));
+}
+
+function saveState(){
+ try{
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+ }catch(e){}
+}
+
+let state=loadState();
+
+const projectBy=id=>state.projects.find(p=>p.id===Number(id));
+const initials=name=>name.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+const escapeHTML=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){let t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2600)}
+function logActivity(name,initial,action,detail,project=1){state.activity.unshift({initials:initial,name,action,detail,time:"Just now",project});saveState();renderActivity();renderOverview()}
+function avatar(init,extra=""){return `<div class="avatar ${extra}">${escapeHTML(init)}</div>`}
+function progress(p){return `<div class="project-progress"><div class="progress-track"><div class="progress-fill" style="width:${p.progress}%"></div></div><span class="progress-label">${p.progress}%</span></div>`}
+function projectCard(p){let sym=p.category==="Computer Science"?"⌘":p.category==="Environmental Science"?"♧":"◈";return `<div class="project-card"><div class="project-symbol ${p.color}">${sym}</div><div class="project-main"><div class="project-title">${escapeHTML(p.name)}</div><div class="project-desc">${escapeHTML(p.desc)}</div><div class="pills"><span class="pill">${escapeHTML(p.category)}</span><span class="pill ${p.status==="In progress"?"green":"amber"}">${escapeHTML(p.status)}</span></div>${progress(p)}<div class="members">${p.team.map(a=>avatar(a)).join("")}<span class="more-members">${p.team.length} members · ${p.tasks} tasks</span></div></div><button class="icon-btn" title="Open comments" onclick="openComments(${p.id})">···</button></div>`}
+function renderProjects(){$("#overviewProjects").innerHTML=state.projects.slice(0,3).map(projectCard).join("")||'<div class="empty">Create your first research project.</div>';$("#allProjects").innerHTML=state.projects.map(projectCard).join("")||'<div class="empty">No projects yet.</div>';$("#projectCount").textContent=state.projects.length+" projects";$("#statProjects").textContent=state.projects.length}
+function renderOverview(){
+ renderProjects();
+ let open=state.tasks.filter(t=>t.status!=="done").length;$("#statTasks").textContent=open;$("#statMilestones").textContent=state.milestones.filter(m=>m.status!=="Completed").length;$("#statMembers").textContent=state.members.length;
+ $("#overviewMilestones").innerHTML=state.milestones.slice(0,4).map(m=>{let d=m.date.split(" ");return `<div class="deadline"><div class="datebox"><small>${escapeHTML(d[0])}</small><b>${escapeHTML(d[1]||"")}</b></div><div class="deadline-info"><strong>${escapeHTML(m.title)}</strong><small>${escapeHTML(projectBy(m.project)?.name||"Research project")}</small><div style="margin-top:6px"><span class="pill ${m.status==="In review"?"amber":"green"}">${escapeHTML(m.status)}</span></div></div></div>`}).join("")||'<div class="empty">No milestones yet.</div>';
+ $("#overviewTasks").innerHTML=state.tasks.filter(t=>t.assignee==="AP").slice(0,4).map(t=>`<div class="task-row"><button class="check ${t.status==="done"?"done":""}" onclick="toggleTask(${t.id})">${t.status==="done"?"✓":""}</button><div class="task-copy"><strong>${escapeHTML(t.title)}</strong><small>${escapeHTML(projectBy(t.project)?.name||"Project")} · Due ${escapeHTML(t.due)}</small></div><span class="pill ${t.priority==="High"?"rose":t.priority==="Medium"?"amber":""}">${escapeHTML(t.priority)}</span></div>`).join("")||'<div class="empty">No tasks assigned to you.</div>';
+ $("#overviewActivity").innerHTML=state.activity.slice(0,4).map(a=>`<div class="activity">${avatar(a.initials)}<div class="activity-text"><b>${escapeHTML(a.name)}</b> ${escapeHTML(a.action)} <b>${escapeHTML(a.detail)}</b><small>${escapeHTML(a.time)}</small></div></div>`).join("");
+}
+function renderTasks(){let tasks=state.tasks.filter(t=>state.taskFilter==="mine"?t.assignee==="AP":state.taskFilter==="overdue"?false:true);const cols=[["todo","To do"],["progress","In progress"],["done","Completed"]];$("#taskBoard").innerHTML=cols.map(([key,label])=>{let arr=tasks.filter(t=>t.status===key);return `<div class="board-col"><div class="col-head"><span>${label}</span><span class="count">${arr.length}</span></div>${arr.map(t=>`<div class="task-card"><div style="display:flex;justify-content:space-between;align-items:center"><span class="pill ${t.priority==="High"?"rose":t.priority==="Medium"?"amber":"blue"}">${escapeHTML(t.priority)} priority</span><button class="text-link" onclick="cycleTask(${t.id})" title="Move task to next stage">↗</button></div><h3>${escapeHTML(t.title)}</h3><p>${escapeHTML(t.desc)}</p><span class="pill">${escapeHTML(projectBy(t.project)?.name||"Project")}</span><div class="task-card-foot"><small>◷ ${escapeHTML(t.due)}</small>${avatar(t.assignee,"mini")}</div></div>`).join("")||'<div class="empty">No tasks here</div>'}<button class="secondary-btn" style="width:100%;margin-top:3px" onclick="openModal('task')">＋ Add task</button></div>`}).join("")}
+function renderMilestones(){$("#milestoneList").innerHTML=state.milestones.map(m=>`<div class="milestone"><div class="milestone-dot ${m.status==="Upcoming"?"pending":""}">${m.status==="Completed"?"✓":"◷"}</div><div class="milestone-info"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b>${escapeHTML(m.title)}</b><span class="pill ${m.status==="In review"?"amber":m.status==="Completed"?"green":"blue"}">${escapeHTML(m.status)}</span></div><p>${escapeHTML(m.desc)}</p><div style="display:flex;gap:14px;margin-top:9px;font-size:10px;color:var(--muted)"><span>◷ ${escapeHTML(m.date)}</span><span>◫ ${escapeHTML(projectBy(m.project)?.name||"Project")}</span></div></div><button class="icon-btn" onclick="completeMilestone(${m.id})" title="Mark completed">✓</button></div>`).join("")||'<div class="empty">No milestones added.</div>'}
+function renderRefs(){let q=($("#refSearch")?.value||"").toLowerCase();let refs=state.refs.filter(r=>(r.title+" "+r.source).toLowerCase().includes(q));$("#referenceList").innerHTML=refs.map(r=>`<div class="ref-item"><div class="file-icon">${escapeHTML(r.type)}</div><div class="ref-copy"><b>${escapeHTML(r.title)}</b><small>${escapeHTML(r.source)} · ${escapeHTML(projectBy(r.project)?.name||"Project")}</small><a href="${escapeHTML(r.url)}" target="_blank" rel="noopener noreferrer">Open resource ↗</a></div><button class="icon-btn" onclick="copyRef('${escapeHTML(r.url)}')" title="Copy link">⧉</button></div>`).join("")||'<div class="empty">No matching references.</div>'}
+function renderTeam(){$("#teamTable").innerHTML=state.members.map(m=>`<tr><td><div class="person-cell">${avatar(m.initials)}<div><b>${escapeHTML(m.name)}</b><small>${escapeHTML(m.email)}</small></div></div></td><td><span class="pill ${m.role==="Project lead"?"green":""}">${escapeHTML(m.role)}</span></td><td>${escapeHTML(projectBy(m.project)?.name||"—")}</td><td>${m.tasks}</td></tr>`).join("");$("#memberCount").textContent=state.members.length+" members";$("#statMembers").textContent=state.members.length}
+function renderActivity(){$("#activityFull").innerHTML=state.activity.map(a=>`<div class="activity-full">${avatar(a.initials)}<div><p><b>${escapeHTML(a.name)}</b> ${escapeHTML(a.action)} <b>${escapeHTML(a.detail)}</b></p><small>${escapeHTML(a.time)} · ${escapeHTML(projectBy(a.project)?.name||"Workspace")}</small></div></div>`).join("")}
+function renderComments(){$("#commentList").innerHTML=state.comments.map(c=>`<div class="comment">${avatar(c.initials)}<div class="comment-body"><b>${escapeHTML(c.author)}</b><small>${escapeHTML(c.time)}</small><p>${escapeHTML(c.text)}</p></div></div>`).join("")}
+function renderAll(){saveState();renderOverview();renderTasks();renderMilestones();renderRefs();renderTeam();renderActivity();renderComments()}
+function go(page){$$(".page-view").forEach(p=>p.classList.toggle("active",p.id==="page-"+page));$$(".nav").forEach(n=>n.classList.toggle("active",n.dataset.page===page));$("#crumb").textContent=({overview:"Overview",projects:"My projects",tasks:"Task board",milestones:"Milestones",references:"References & files",team:"Team members",activity:"Activity history",comments:"Comments"})[page]||"Workspace";$("#sidebar").classList.remove("open");window.scrollTo({top:0,behavior:"smooth"})}
+$$(".nav").forEach(n=>n.addEventListener("click",()=>go(n.dataset.page)));
+$$("[data-goto]").forEach(n=>n.addEventListener("click",()=>go(n.dataset.goto)));
+$("#mobileMenu").onclick=()=>$("#sidebar").classList.toggle("open");
+$("#notifyBtn").onclick=()=>{go("activity");toast("Showing your latest workspace activity")};
+$("#newProjectBtn").onclick=$("#newProjectBtn2").onclick=()=>openModal("project");
+$("#newTaskBtn").onclick=$("#quickTask").onclick=()=>openModal("task");
+$("#newMilestoneBtn").onclick=()=>openModal("milestone");
+$("#newRefBtn").onclick=()=>openModal("reference");
+$("#newMemberBtn").onclick=()=>openModal("member");
+$("#resetDataBtn").onclick=()=>{localStorage.removeItem(STORAGE_KEY);state=loadState();renderAll();toast("Workspace reset to default demo state")};
+$$(".tab[data-filter]").forEach(b=>b.onclick=()=>{$$(".tab[data-filter]").forEach(x=>x.classList.toggle("active",x===b));state.taskFilter=b.dataset.filter;renderTasks()});
+$("#refSearch").addEventListener("input",renderRefs);
+$("#globalSearch").addEventListener("keydown",e=>{if(e.key==="Enter"){let q=e.target.value.toLowerCase();if(state.tasks.some(t=>t.title.toLowerCase().includes(q))){go("tasks");toast("Task matches found")}else if(state.projects.some(p=>p.name.toLowerCase().includes(q))){go("projects");toast("Project matches found")}else{go("references");$("#refSearch").value=e.target.value;renderRefs();toast("Searching your workspace")}}});
+function toggleTask(id){let t=state.tasks.find(x=>x.id===id);t.status=t.status==="done"?"todo":"done";logActivity("Aditya Pratap Singh","AP","updated task status",t.title,t.project);renderAll()}
+function cycleTask(id){let t=state.tasks.find(x=>x.id===id);t.status=({todo:"progress",progress:"done",done:"todo"})[t.status];logActivity("Aditya Pratap Singh","AP","moved task",t.title+" → "+({todo:"To do",progress:"In progress",done:"Completed"})[t.status],t.project);renderAll();toast("Task moved to "+({todo:"To do",progress:"In progress",done:"Completed"})[t.status])}
+function completeMilestone(id){let m=state.milestones.find(x=>x.id===id);m.status=m.status==="Completed"?"Upcoming":"Completed";logActivity("Aditya Pratap Singh","AP",m.status==="Completed"?"completed milestone":"reopened milestone",m.title,m.project);renderAll();toast(m.status==="Completed"?"Milestone completed":"Milestone reopened")}
+function openComments(projectId){go("comments");let p=projectBy(projectId);if(p)$("#crumb").textContent="Comments · "+p.name}
+function copyRef(url){if(navigator.clipboard?.writeText)navigator.clipboard.writeText(url).then(()=>toast("Reference link copied")).catch(()=>toast(url));else toast(url)}
+const modalBackdrop=$("#modalBackdrop"),modalFields=$("#modalFields"),modalTitle=$("#modalTitle"),modalSubmit=$("#modalSubmit");
+function field(name,label,placeholder="",type="text",required=true){return `<div class="field"><label for="${name}">${label}</label><input id="${name}" name="${name}" type="${type}" placeholder="${placeholder}" ${required?"required":""}></div>`}
+function selectField(name,label,options){return `<div class="field"><label for="${name}">${label}</label><select id="${name}" name="${name}">${options.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("")}</select></div>`}
+function projectSelect(){return selectField("project","Project",state.projects.map(p=>[p.id,p.name]))}
+function openModal(type){let title="",fields="",submit="Create";
+if(type==="project"){title="Create a research project";fields=field("name","Project name","e.g. Climate change research")+field("desc","Short description","What is this research about?")+field("category","Research area","e.g. Computer Science")+selectField("status","Status",[["In progress","In progress"],["Planning","Planning"]]);}
+if(type==="task"){title="Add a task";fields=field("title","Task title","What needs to be done?")+field("desc","Description","Add a little context", "text",false)+projectSelect()+selectField("priority","Priority",[["High","High"],["Medium","Medium"],["Low","Low"]])+selectField("assignee","Assign to",[["AP","Aditya Pratap Singh"],...state.members.filter(m=>m.initials!=="AP").map(m=>[m.initials,m.name])])+field("due","Due date","e.g. Nov 10");}
+if(type==="milestone"){title="Add a milestone";fields=field("title","Milestone title","e.g. Literature review complete")+field("desc","Description","What will be delivered?")+projectSelect()+field("date","Due date","e.g. Nov 12");}
+if(type==="reference"){title="Add a reference";fields=field("title","Title","Paper, dataset, or resource")+field("url","URL","https://…","url")+field("source","Citation / notes","Author, year, notes", "text",false)+projectSelect();}
+if(type==="member"){title="Invite a team member";submit="Add member";fields=field("name","Full name","Researcher's name")+field("email","University email","name@university.edu","email")+selectField("role","Role",[["Researcher","Researcher"],["Project lead","Project lead"],["Data analyst","Data analyst"],["Viewer","Viewer"]])+projectSelect();}
+modalTitle.textContent=title;modalSubmit.textContent=submit;modalFields.innerHTML=fields;modalBackdrop.classList.add("show");modalBackdrop.dataset.type=type;setTimeout(()=>modalFields.querySelector("input")?.focus(),50)}
+function closeModal(){modalBackdrop.classList.remove("show")}
+$("#modalClose").onclick=$("#modalCancel").onclick=closeModal;
+modalBackdrop.addEventListener("click",e=>{if(e.target===modalBackdrop)closeModal()});
+$("#modalForm").addEventListener("submit",e=>{e.preventDefault();let type=modalBackdrop.dataset.type;let d=Object.fromEntries(new FormData(e.target).entries());let proj=Number(d.project)||state.projects[0]?.id||1;
+if(type==="project"){let id=Math.max(0,...state.projects.map(x=>x.id))+1;state.projects.unshift({id,name:d.name,desc:d.desc,category:d.category||"Research",status:d.status,progress:0,team:["AP"],color:"",tasks:0});logActivity("Aditya Pratap Singh","AP","created project",d.name,id);go("projects");}
+if(type==="task"){let id=Math.max(0,...state.tasks.map(x=>x.id))+1;state.tasks.unshift({id,title:d.title,desc:d.desc||"No description added.",status:"todo",priority:d.priority,assignee:d.assignee,due:d.due||"No date",project:proj});let p=projectBy(proj);if(p)p.tasks++;logActivity("Aditya Pratap Singh","AP","created task",d.title,proj);go("tasks");}
+if(type==="milestone"){let id=Math.max(0,...state.milestones.map(x=>x.id))+1;state.milestones.unshift({id,title:d.title,desc:d.desc,date:d.date||"TBD",status:"Upcoming",project:proj});logActivity("Aditya Pratap Singh","AP","created milestone",d.title,proj);go("milestones");}
+if(type==="reference"){let id=Math.max(0,...state.refs.map(x=>x.id))+1;state.refs.unshift({id,title:d.title,type:"LINK",source:d.source||"Shared reference",url:d.url,project:proj});logActivity("Aditya Pratap Singh","AP","added a reference",d.title,proj);go("references");}
+if(type==="member"){let id=Math.max(0,...state.members.map(x=>x.id))+1;state.members.push({id,name:d.name,initials:initials(d.name),email:d.email,role:d.role,project:proj,tasks:0});let p=projectBy(proj);if(p)p.team.push(initials(d.name));logActivity("Aditya Pratap Singh","AP","added team member",d.name,proj);go("team");}
+closeModal();renderAll();toast(({project:"Project created",task:"Task added",milestone:"Milestone added",reference:"Reference saved",member:"Team member added"})[type]||"Saved")});
+$("#commentForm").addEventListener("submit",e=>{e.preventDefault();let txt=$("#commentInput").value.trim();if(!txt)return;state.comments.push({id:Date.now(),author:"Aditya Pratap Singh",initials:"AP",time:"Just now",text:txt});logActivity("Aditya Pratap Singh","AP","added a comment",txt.slice(0,70),1);$("#commentInput").value="";renderComments();toast("Comment added")});
+$("#exportActivity").onclick=()=>{let text=state.activity.map(a=>`${a.time} — ${a.name} ${a.action}: ${a.detail} (${projectBy(a.project)?.name||"Workspace"})`).join("\n");let blob=new Blob([text],{type:"text/plain"});let url=URL.createObjectURL(blob);let a=document.createElement("a");a.href=url;a.download="research-portal-activity.txt";a.click();URL.revokeObjectURL(url);toast("Activity history exported")};
+renderAll();
+</script>
+</body>
+</html>
